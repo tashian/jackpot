@@ -1,0 +1,21 @@
+{
+  "name": "Listen to the web",
+  "version": "0.0.1",
+  "minimum_chrome_version": "50.0",
+  "browser_action": {
+    "default_icon": "toast.png",
+    "default_popup": "audio.html"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "manifest_version": 2,
+  "permissions": [
+    "activeTab",
+    "webRequest",
+    "http://*/*",
+    "https://*/*"
+  ]
+}
