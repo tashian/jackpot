@@ -2,53 +2,104 @@
 // notify of page refreshes
 // Background page -- background.js
 
-chrome.runtime.onConnect.addListener(function(devToolsConnection) {
-  console.log("connection established from messaging.js");
+var bass = new Wad({
+    source : 'sine',
+    env : {
+        attack : .02,
+        decay : .1,
+        sustain : .9,
+        hold : .4,
+        release : .1
+    },
+    loop: true
+});
 
-  // assign the listener function to a variable so we can remove it later
-  var createRequestListener = function(eventName) {
-    return function(details) {
-      // console.log('Web request: ' + details.url);
-      devToolsConnection.postMessage({type: eventName, details: details});
-    }
+function newBass(iteration, label) {
+  var notes = ['C3','E3','G3','B3','D4','F#4','A4'];
+  var currentNote = iteration % notes.length;
+  bass.play({ pitch : notes[currentNote], label: label });
+}
+
+function muteUnmute() {
+  console.log(bass.volume);
+  if (bass.volume > 0) {
+    console.log('muted');
+    bass.setVolume(0);
+  } else {
+    console.log('unmuted');
+    bass.setVolume(initialVol);
   }
+}
 
-  var beforeRequestListener = createRequestListener('beforeRequest');
-  var completedListener = createRequestListener('completed');
+function resetAll() {
+  console.log('reset');
+  requestCount = 0;
+  for (var i = 0; i < oscs.length; i++) {
+    bass.stop(oscs[i]);
+  }
+  oscs = [];
+}
 
-  chrome.tabs.onUpdated.addListener(function(tabId , info) {
-      if (info.status == "complete") {
-        devToolsConnection.postMessage({type: 'reset', details: info})
-        // your code ...
-      }
+chrome.runtime.onConnect.addListener(function(popupConnection) {
+  console.log("connection established from popup.js");
+
+  var popupCommandListener = function(msg) {
+    console.log(msg);
+    if (msg.type == 'mute') {
+      muteUnmute();
+    } else {
+      resetAll();
+    }
+  };
+
+  popupConnection.onMessage.addListener(popupCommandListener);
+
+  popupConnection.onDisconnect.addListener(function() {
+       popupConnection.onMessage.removeListener(popupCommandListener);
   });
 
-  chrome.webRequest.onBeforeRequest.addListener(
-    beforeRequestListener,
-    { urls: [
-      "http://*/*",
-      "https://*/*"
-    ] }
-  );
+});
 
-  chrome.webRequest.onErrorOccurred.addListener(
-    completedListener,
-    { urls: [
-      "http://*/*",
-      "https://*/*"
-    ] }
-  );
+var requestCount = 0;
+var oscs = [];
+var addAndPlay = function(details) {
+  if (!oscs.includes(details.requestId)) {
+    newBass(requestCount, details.requestId);
+    oscs.push(details.requestId);
+    requestCount++;
+  }
+}
 
-  chrome.webRequest.onCompleted.addListener(
-    completedListener,
-    { urls: [
-      "http://*/*",
-      "https://*/*"
-    ] }
-  );
+var stopPlaying = function(details) {
+  bass.stop(details.requestId);
+}
 
-  devToolsConnection.onDisconnect.addListener(function() {
-       chrome.webRequest.onBeforeRequest.removeListener(requestListener);
-  });
+chrome.tabs.onUpdated.addListener(function(tabId , info) {
+    if (info.status == "complete") {
+      resetAll();
+    }
+});
 
-})
+chrome.webRequest.onSendHeaders.addListener(
+  addAndPlay,
+  { urls: [
+    "http://*/*",
+    "https://*/*"
+  ] }
+);
+
+chrome.webRequest.onErrorOccurred.addListener(
+  stopPlaying,
+  { urls: [
+    "http://*/*",
+    "https://*/*"
+  ] }
+);
+
+chrome.webRequest.onCompleted.addListener(
+  stopPlaying,
+  { urls: [
+    "http://*/*",
+    "https://*/*"
+  ] }
+);

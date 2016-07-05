@@ -4,16 +4,17 @@
   "minimum_chrome_version": "50.0",
   "browser_action": {
     "default_icon": "toast.png",
-    "default_popup": "audio.html"
+    "default_popup": "popup.html"
   },
   "background": {
     "scripts": [
+      "vendor/wad.min.js",
       "background.js"
     ]
   },
   "manifest_version": 2,
   "permissions": [
-    "activeTab",
+    "tabs",
     "webRequest",
     "http://*/*",
     "https://*/*"
