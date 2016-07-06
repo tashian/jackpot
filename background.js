@@ -29,6 +29,11 @@ chrome.runtime.onConnect.addListener(function(popupConnection) {
 chrome.webRequest.onResponseStarted.addListener(
   function(details) {
     var bytesPerMegabyte = 1048576;
+    console.log(details);
+    if (details.fromCache) { return; }
+    if (details.statusCode != 200 && details.statusCode != 304 && details.statusCode != 204) {
+      console.log('status ' + details.statusCode)
+    }
     for (var i = 0; i < details.responseHeaders.length; ++i) {
       if (details.responseHeaders[i].name.toLowerCase() === 'content-length') {
         var bytes = details.responseHeaders[i].value;
@@ -53,7 +58,6 @@ chrome.webRequest.onErrorOccurred.addListener(
 );
 
 chrome.tabs.onUpdated.addListener(function(tabId , info) {
-  console.log(info);
   if (info.status == 'loading') {
     sound.reset();
   }
