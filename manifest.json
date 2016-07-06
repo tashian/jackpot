@@ -9,6 +9,7 @@
   "background": {
     "scripts": [
       "vendor/wad.min.js",
+      "sound.js",
       "background.js"
     ]
   },
