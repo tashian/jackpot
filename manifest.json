@@ -8,7 +8,9 @@
   },
   "background": {
     "scripts": [
+      "vendor/lodash.min.js",
       "vendor/wad.min.js",
+      "sound-manager.js",
       "sound.js",
       "background.js"
     ]

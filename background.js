@@ -8,60 +8,79 @@
 // images and sound vs. js vs. css
 // XSS (how much is this site tracking me?)
 
-chrome.runtime.onConnect.addListener(function(popupConnection) {
-  var popupCommandListener = function(msg) {
-    console.log(msg);
-    if (msg.type == 'mute') {
-      sound.muteUnmute();
-    } else {
-      sound.stopAll();
-    }
-  };
+(function() {
+  var allUrlsFilter = { urls: ["<all_urls>"] };
 
-  popupConnection.onMessage.addListener(popupCommandListener);
+  chrome.runtime.onConnect.addListener(function(popupConnection) {
+    var popupCommandListener = function(msg) {
+      console.log(msg);
+      if (msg.type == 'mute') {
+        sound.muteUnmute();
+      } else {
+        sound.stopAll();
+      }
+    };
 
-  popupConnection.onDisconnect.addListener(function() {
-       popupConnection.onMessage.removeListener(popupCommandListener);
+    popupConnection.onMessage.addListener(popupCommandListener);
+
+    popupConnection.onDisconnect.addListener(function() {
+         popupConnection.onMessage.removeListener(popupCommandListener);
+    });
+
   });
 
-});
-
-chrome.webRequest.onResponseStarted.addListener(
-  function(details) {
-    var bytesPerMegabyte = 1048576;
-    console.log(details);
-    if (details.fromCache) { return; }
-    if (details.statusCode != 200 && details.statusCode != 304 && details.statusCode != 204) {
-      console.log('status ' + details.statusCode)
-    }
-    for (var i = 0; i < details.responseHeaders.length; ++i) {
-      if (details.responseHeaders[i].name.toLowerCase() === 'content-length') {
-        var bytes = details.responseHeaders[i].value;
-        sound.play('bass', details.requestId, bytes / bytesPerMegabyte);
+  chrome.webRequest.onResponseStarted.addListener(
+    function(info) {
+      function objectifyResponseHeaders(arrayedHeaders) {
+        return _.reduce(arrayedHeaders, function(result, header) {
+          result[header.name.toLowerCase()] = header.value;
+          return result;
+        }, {});
       }
+
+      var headers = objectifyResponseHeaders(info.responseHeaders);
+
+      SoundManager.dispatch('responseStarted', {
+        tabId: info.tabId,
+        requestId: info.requestId,
+        timestamp: info.timestamp,
+        fileType: info.type,
+        lastModified: headers['last-modified'],
+        contentLength: headers['content-length'],
+        statusCode: info.statusCode,
+        fromCache: info.fromCache,
+        // isSsl: info.scheme,
+        url: info.url
+      });
+    },
+    allUrlsFilter,
+    ["responseHeaders"]
+  );
+
+  chrome.webRequest.onErrorOccurred.addListener(
+    function(info) {
+      SoundManager.dispatch('error', {
+        tabId: info.tabId,
+        requestId: info.requestId,
+        error: info.error,
+        statusCode: info.statusCode,
+        fromCache: info.fromCache,
+        // isSsl: info.scheme,
+        fileType: info.fileType,
+        url: info.url
+      })
+    },
+    allUrlsFilter
+  );
+
+  chrome.tabs.onUpdated.addListener(function(tabId, info) {
+    if (info.status == 'loading' || info.status == 'complete') {
+      SoundManager.dispatch(info.status, {
+        tabId: tabId,
+        requestId: info.requestId,
+        // isSsl: info.scheme,
+        url: info.url
+      });
     }
-  },
-  { urls: ["<all_urls>"]
-  },
-  ["responseHeaders"]
-);
-
-chrome.webRequest.onErrorOccurred.addListener(
-  function(details) {
-    if (details.error == 'net::ERR_BLOCKED_BY_CLIENT' ||
-        details.error == 'net::ERR_ABORTED') { return; }
-    console.log('error ' + details.error);
-    sound.stop(details.requestId);
-    sound.play('edgy', details.requestId, 0.2);
-  },
-  { urls: ["<all_urls>"] }
-);
-
-chrome.tabs.onUpdated.addListener(function(tabId , info) {
-  if (info.status == 'loading') {
-    sound.reset();
-  }
-  // if (info.status == 'complete') {
-  //   sound.play('done', 0.2)
-  // }
-});
+  });
+})();
