@@ -8,8 +8,10 @@
   },
   "background": {
     "scripts": [
-      "vendor/lodash.min.js",
-      "vendor/wad.min.js",
+      "vendor/js/lodash.min.js",
+      "vendor/js/wad.min.js",
+      "vendor/js/jquery-3.0.0.min.js",
+      "tracker-checker.js",
       "sound-manager.js",
       "sound.js",
       "background.js"

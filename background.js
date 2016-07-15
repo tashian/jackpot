@@ -31,6 +31,8 @@
 
   chrome.webRequest.onResponseStarted.addListener(
     function(info) {
+      if (info.tabId < 0) { return; }
+      
       function objectifyResponseHeaders(arrayedHeaders) {
         return _.reduce(arrayedHeaders, function(result, header) {
           result[header.name.toLowerCase()] = header.value;
@@ -40,17 +42,20 @@
 
       var headers = objectifyResponseHeaders(info.responseHeaders);
 
-      SoundManager.dispatch('responseStarted', {
-        tabId: info.tabId,
-        requestId: info.requestId,
-        timestamp: info.timestamp,
-        fileType: info.type,
-        lastModified: headers['last-modified'],
-        contentLength: headers['content-length'],
-        statusCode: info.statusCode,
-        fromCache: info.fromCache,
-        // isSsl: info.scheme,
-        url: info.url
+      chrome.tabs.get(info.tabId, function(tab) {
+        SoundManager.dispatch('responseStarted', {
+          tabId: info.tabId,
+          requestId: info.requestId,
+          timestamp: info.timestamp,
+          fileType: info.type,
+          lastModified: headers['last-modified'],
+          contentLength: headers['content-length'],
+          statusCode: info.statusCode,
+          fromCache: info.fromCache,
+          // isSsl: info.scheme,
+          pageUrl: tab.url,
+          url: info.url
+        });
       });
     },
     allUrlsFilter,
@@ -77,7 +82,6 @@
     if (info.status == 'loading' || info.status == 'complete') {
       SoundManager.dispatch(info.status, {
         tabId: tabId,
-        requestId: info.requestId,
         // isSsl: info.scheme,
         url: info.url
       });
