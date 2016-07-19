@@ -18,9 +18,9 @@ SoundManager = new function() {
       console.log('status ' + info.statusCode)
     }
     if (TrackerChecker.isTrackingRequest(info.pageUrl, info.url)) {
-      sound.play('edgy', info.requestId, this.noteLengthFromContentLength(info.contentLength));
+      sound.play('edgy', info.requestId, 'tracker', this.noteLengthFromContentLength(info.contentLength));
     } else {
-      sound.play('bass', info.requestId, this.noteLengthFromContentLength(info.contentLength));
+      sound.play('bass', info.requestId, 'plain', this.noteLengthFromContentLength(info.contentLength));
     }
   }
 
@@ -28,8 +28,7 @@ SoundManager = new function() {
     if (info.error == 'net::ERR_BLOCKED_BY_CLIENT' ||
         info.error == 'net::ERR_ABORTED') { return; }
     console.log('error ' + info.error);
-    sound.play('edgy', info.requestId, 0.2);
-    sound.stop(info.requestId);
+    sound.play('edgy', info.requestId, 'error', 0.2);
   }
 
   this.loading = function(info) {

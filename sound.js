@@ -30,11 +30,10 @@ sound = new function() {
         })
   }
 
-  var currentlyPlaying = {};
-  var notes = ['C2','E2','G2','B2','D3','F#3','A3',
+  var notes = ['B2','D3','F#3','A3',
                'C3','E3','G3','B3','D4','F#4','A4',
                'C4','E4','G4','B4','D5','F#5','A5'];
-  var plays = 0;
+  var plays = {};
 
   this.muted = false;
 
@@ -44,52 +43,33 @@ sound = new function() {
   }
 
   function canPlay(label) {
-    if (isPlaying(label)) { return false; }
     if (this.muted) { return false; }
     return true;
   }
 
-  this.play = function(toneName, label, length) {
-    var length = typeof length !== 'undefined' ? length : 10;
-
-    console.log('playLong ' + length);
+  this.play = function(toneName, label, variety, length) {
+    console.log('play ' + length);
     if (!canPlay(label)) { return; }
-    currentlyPlaying[label] = toneName;
-    tones[toneName].play({ pitch : notes[this.nextNote()], label: label, env: {hold: length} });
-    setTimeout(function() {
-      delete currentlyPlaying[label];
-    }, length * 1000);
+    tones[toneName].play({ pitch : notes[this.nextNote(variety)], label: label, env: {hold: length} });
   }
 
-  this.nextNote = function() {
-    return plays++ % notes.length;
-  }
-
-  this.stop = function(label) {
-    if (!isPlaying(label)) { return; }
-    tones[currentlyPlaying[label]].stop(label);
-    delete currentlyPlaying[label];
-  }
-
-  this.stopAll = function() {
-    for (var i = 0; i < currentlyPlaying.length; i++) {
-      this.stop(currentlyPlaying[i]);
+  this.nextNote = function(label) {
+    if (!plays.hasOwnProperty(label)) {
+      plays[label] = 0;
     }
+    return plays[label]++ % notes.length;
   }
 
   this.reset = function(label) {
-    plays = 0;
-    currentlyPlaying = {};
+    plays = {};
   }
 
   this.muteUnmute = function() {
-    this.stopAll();
     this.muted = !this.muted;
   }
 
   this.stats = function() {
     return {
-      currentlyPlaying: Object.keys(currentlyPlaying).length,
       plays: plays
     }
   }

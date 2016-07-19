@@ -17,7 +17,7 @@
       if (msg.type == 'mute') {
         sound.muteUnmute();
       } else {
-        sound.stopAll();
+        // ??
       }
     };
 
@@ -32,7 +32,7 @@
   chrome.webRequest.onResponseStarted.addListener(
     function(info) {
       if (info.tabId < 0) { return; }
-      
+
       function objectifyResponseHeaders(arrayedHeaders) {
         return _.reduce(arrayedHeaders, function(result, header) {
           result[header.name.toLowerCase()] = header.value;
@@ -43,6 +43,12 @@
       var headers = objectifyResponseHeaders(info.responseHeaders);
 
       chrome.tabs.get(info.tabId, function(tab) {
+        if (typeof tab == 'undefined') {
+          // This usually means something is being typed in the browser bar
+          SoundManager.dispatch('loading', { tabId: info.tabId });
+          return;
+        }
+
         SoundManager.dispatch('responseStarted', {
           tabId: info.tabId,
           requestId: info.requestId,
