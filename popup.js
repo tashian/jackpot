@@ -3,13 +3,13 @@
 
 var port = chrome.runtime.connect({name: "sonic-devtools"});
 
-document.querySelector("#mute").addEventListener('click', muteUnmute);
-document.querySelector("#reset").addEventListener('click', resetAll);
-
-function muteUnmute() {
-  port.postMessage({type: 'mute'});
-}
-
-function resetAll() {
-  port.postMessage({type: 'reset'});
-}
+// document.querySelector("#mute").addEventListener('click', muteUnmute);
+// document.querySelector("#reset").addEventListener('click', resetAll);
+//
+// function muteUnmute() {
+//   port.postMessage({type: 'mute'});
+// }
+//
+// function resetAll() {
+//   port.postMessage({type: 'reset'});
+// }

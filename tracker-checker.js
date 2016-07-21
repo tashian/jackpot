@@ -23,7 +23,6 @@ TrackerChecker = new function() {
   }
 
   this.lookupTracker = function(hostname) {
-    console.log('Lookup ' + hostname);
     var tracker = this.trackers[hostname];
     // This is a naive approach for turning www.google.com into google.com.
     // It works for ads.doubleclick.co.uk but not for ads1.ads.doubleclick.com.
@@ -32,8 +31,6 @@ TrackerChecker = new function() {
       hostname = hostname.slice(hostname.indexOf('.') + 1);
       tracker = this.trackers[hostname];
     }
-    console.log('Found ');
-    console.log(tracker);
     return tracker;
   }
 
@@ -47,9 +44,6 @@ TrackerChecker = new function() {
     if (trackerHostname == pageHostname) {
       return false;
     } else {
-      console.log('Tracking request!');
-      console.log(requestHostname);
-      console.log(tracker);
       return true;
     }
   }

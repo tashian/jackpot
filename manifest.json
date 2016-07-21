@@ -12,8 +12,8 @@
       "vendor/js/wad.min.js",
       "vendor/js/jquery-3.0.0.min.js",
       "tracker-checker.js",
+      "sound-signature.js",
       "sound-manager.js",
-      "sound.js",
       "background.js"
     ]
   },
@@ -21,6 +21,7 @@
   "permissions": [
     "tabs",
     "webRequest",
+    "alarms",
     "http://*/*",
     "https://*/*"
   ]

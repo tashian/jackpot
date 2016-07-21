@@ -11,11 +11,14 @@
 (function() {
   var allUrlsFilter = { urls: ["<all_urls>"] };
 
+  //
+  // Connection to the extension's popup menu
+  //
   chrome.runtime.onConnect.addListener(function(popupConnection) {
     var popupCommandListener = function(msg) {
       console.log(msg);
       if (msg.type == 'mute') {
-        sound.muteUnmute();
+        // ?
       } else {
         // ??
       }
@@ -29,9 +32,12 @@
 
   });
 
+  //
+  // Event listeners
+  //
   chrome.webRequest.onResponseStarted.addListener(
     function(info) {
-      if (info.tabId < 0) { return; }
+      if (!TabController.tabIsAllowedToPlay(info.tabId)) { return; }
 
       function objectifyResponseHeaders(arrayedHeaders) {
         return _.reduce(arrayedHeaders, function(result, header) {
@@ -45,14 +51,13 @@
       chrome.tabs.get(info.tabId, function(tab) {
         if (typeof tab == 'undefined') {
           // This usually means something is being typed in the browser bar
-          SoundManager.dispatch('loading', { tabId: info.tabId });
+          TabController.get(info.tabId).dispatch('loading');
           return;
         }
 
-        SoundManager.dispatch('responseStarted', {
-          tabId: info.tabId,
+        TabController.get(info.tabId).dispatch('responseStarted', {
           requestId: info.requestId,
-          timestamp: info.timestamp,
+          timeStamp: info.timeStamp,
           fileType: info.type,
           lastModified: headers['last-modified'],
           contentLength: headers['content-length'],
@@ -68,11 +73,25 @@
     ["responseHeaders"]
   );
 
+  chrome.webRequest.onCompleted.addListener(
+    function(info) {
+      if (!TabController.tabIsAllowedToPlay(info.tabId)) { return; }
+      TabController.get(info.tabId).dispatch('requestCompleted', {
+        requestId: info.requestId,
+        timeStamp: info.timeStamp,
+        url: info.url
+      });
+    },
+    allUrlsFilter
+  );
+
   chrome.webRequest.onErrorOccurred.addListener(
     function(info) {
-      SoundManager.dispatch('error', {
-        tabId: info.tabId,
+      if (!TabController.tabIsAllowedToPlay(info.tabId)) { return; }
+
+      TabController.get(info.tabId).dispatch('error', {
         requestId: info.requestId,
+        timeStamp: info.timeStamp,
         error: info.error,
         statusCode: info.statusCode,
         fromCache: info.fromCache,
@@ -86,11 +105,51 @@
 
   chrome.tabs.onUpdated.addListener(function(tabId, info) {
     if (info.status == 'loading' || info.status == 'complete') {
-      SoundManager.dispatch(info.status, {
-        tabId: tabId,
-        // isSsl: info.scheme,
+      TabController.get(tabId).dispatch(info.status, {
         url: info.url
       });
     }
   });
+
+  //
+  // Tab Management
+  //
+
+  TabController = new function() {
+    var soundManagers = {};
+
+    this.get = function(tabId) {
+      if (!(tabId in soundManagers)) {
+        tabWasCreated(tabId);
+      }
+      return soundManagers[tabId];
+    }
+
+    this.tabIsAllowedToPlay = function(tabId) {
+      if (tabId == chrome.tabs.TAB_ID_NONE) { return false; }
+      return true;
+    }
+
+    function tabWasCreated(tabId) {
+      soundManagers[tabId] = new SoundManager();
+    }
+
+    function tabWasRemoved(tabId) {
+      if (tabId in soundManagers) {
+        // soundManagers[tabId].finish();
+        delete soundManagers[tabId];
+      }
+    }
+
+    function tabWasReplaced(addedTabId, removedTabId) {
+      if (removedTabId in soundManagers) {
+        soundManagers[addedTabId] = soundManagers[removedTabId];
+        delete soundManagers[removedTabId];
+      }
+    }
+
+    chrome.tabs.onCreated.addListener(tabWasCreated);
+    chrome.tabs.onRemoved.addListener(tabWasRemoved);
+    chrome.tabs.onReplaced.addListener(tabWasReplaced);
+  };
 })();

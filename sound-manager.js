@@ -1,15 +1,9 @@
-SoundManager = new function() {
-  this.dispatch = function(eventName, info) {
-    console.log('event ' + eventName);
-    this[eventName](info);
-  }
+SoundManager = function(tabId) {
+  var signature = new SoundSignature();
 
-  this.noteLengthFromContentLength = function(contentLength) {
-    var bytesPerMegabyte = 1048576;
-    if (isNaN(contentLength)) {
-      contentLength = 1;
-    }
-    return Math.min(0.1, contentLength / bytesPerMegabyte);
+  this.dispatch = function(eventName, info) {
+    console.log('[' + info.requestId + '] event ' + eventName);
+    this[eventName](info);
   }
 
   this.responseStarted = function(info) {
@@ -18,23 +12,28 @@ SoundManager = new function() {
       console.log('status ' + info.statusCode)
     }
     if (TrackerChecker.isTrackingRequest(info.pageUrl, info.url)) {
-      sound.play('edgy', info.requestId, 'tracker', this.noteLengthFromContentLength(info.contentLength));
+      signature.push(info.requestId, 'tracker', info.timeStamp, info.contentLength);
     } else {
-      sound.play('bass', info.requestId, 'plain', this.noteLengthFromContentLength(info.contentLength));
+      signature.push(info.requestId, 'request', info.timeStamp, info.contentLength);
     }
+  }
+
+  this.requestCompleted = function(info) {
+    signature.finish(info.requestId, info.timeStamp);
   }
 
   this.error = function(info) {
     if (info.error == 'net::ERR_BLOCKED_BY_CLIENT' ||
         info.error == 'net::ERR_ABORTED') { return; }
     console.log('error ' + info.error);
-    sound.play('edgy', info.requestId, 'error', 0.2);
+    sound.push(info.requestId, 'error', info.timeStamp, 0.2);
   }
 
   this.loading = function(info) {
-    sound.reset();
+    signature = new SoundSignature();
   }
 
   this.complete = function(info) {
+    signature.play();
   }
 }
