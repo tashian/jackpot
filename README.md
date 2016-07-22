@@ -6,11 +6,11 @@ By [Carl Tashian](http://tashian.com/carl/)
 
 ## Installation
 
-0. Clone or download this repository
-1. Go to chrome://extensions/
-2. Turn on Developer Mode
-3. Click "Load Unpacked Extension..." and choose this folder.
-4. Browse around!
+1. Clone or download this repository
+2. Go to chrome://extensions/
+3. Turn on Developer Mode
+4. Click "Load Unpacked Extension..." and choose this folder.
+5. Browse around!
 
 
 ## Feedback? Want to contribute?
