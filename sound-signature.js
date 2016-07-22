@@ -65,7 +65,7 @@ SoundSignature = function() {
 
   function _scale(min, max, x) {
     // via http://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value
-    var scaledMax = 4;
+    var scaledMax = 2;
     var scaledMin = 0.1;
     return ((scaledMax-scaledMin)*(x-min))/(max-min);
   }
@@ -139,7 +139,7 @@ SoundSignature = function() {
     note.tone.play(
       _(note)
       .merge(
-        { volume: 1.0 / totalNotes,
+        { volume: 1.5 / totalNotes,
           pitch: pitchFromFileType(note.fileType),
           env: {
             hold: lengthScaler(note.endTime - note.startTime)
