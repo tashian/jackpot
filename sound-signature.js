@@ -1,5 +1,16 @@
 SoundSignature = function() {
   var tones = {
+    start: new Wad({
+                source : 'sine',
+                volume: 0.1,
+                env : {
+                    attack : .02,
+                    decay : .1,
+                    hold: .1,
+                    sustain : .1,
+                    release : .1
+                }
+             }),
     request: new Wad({
                 source : 'sine',
                 volume: 0.1,
@@ -10,17 +21,7 @@ SoundSignature = function() {
                     release : .1
                 }
              }),
-    tracker: new Wad({
-                source : 'square',
-                volume: 0.1,
-                env : {
-                  attack : .02,
-                  decay : .1,
-                  sustain : .9,
-                  hold : 1,
-                  release : .1
-                }
-             }),
+    tracker: new Wad(Wad.presets.piano),
     error: new Wad({
             source : 'square',
             volume: 0.1,
@@ -39,13 +40,13 @@ SoundSignature = function() {
                'C4','E4','G4','B4','D5','F#5','A5'];
   var promises = [];
 
-  this.push = function(uid, toneType, timeStamp, length) {
+  this.push = function(uid, toneType, timeStamp, fileType) {
     promise = function(resolve, reject) {
       if (!(toneType in tones)) { reject('Tone ' + toneType + ' not found.'); }
       resolve([uid, {
         tone: tones[toneType],
         startTime: timeStamp,
-        // length: length,
+        fileType: fileType,
         label: uid
       }]);
     }
@@ -64,12 +65,20 @@ SoundSignature = function() {
 
   function _scale(min, max, x) {
     // via http://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value
-    var scaledMax = 0.8;
+    var scaledMax = 4;
     var scaledMin = 0.1;
     return ((scaledMax-scaledMin)*(x-min))/(max-min);
   }
 
   var scale = _.curry(_scale);
+
+  function scaleMaxMin(notes, flatMapIteratee) {
+    var timings = _.flatMap(
+      notes,
+      flatMapIteratee
+    );
+    return scale(_.min(timings), _.max(timings));
+  }
 
   this.play = function() {
     Promise.all(promises).then(function (values) {
@@ -101,26 +110,37 @@ SoundSignature = function() {
         function(n) { return n.startTime; }
       );
 
-      var i = 0;
       _.forEach(validNotes, function(note, uid) {
-        playNote(note, uid, notes[i++ % notes.length], attackScaler, lengthScaler);
+        playNote(note, uid, validNotes.length, attackScaler, lengthScaler);
       });
     });
   }
 
-  function scaleMaxMin(notes, flatMapIteratee) {
-    var timings = _.flatMap(
-      notes,
-      flatMapIteratee
-    );
-    return scale(_.min(timings), _.max(timings));
+  function pitchFromFileType(fileType) {
+    if (fileType == 'image') {
+      return notes[10];
+    } else if (fileType == 'main_frame') {
+      return notes[3];
+    } else if (fileType == 'stylesheet') {
+      return notes[6];
+    } else if (fileType == 'script') {
+      return notes[9];
+    } else if (fileType == 'xmlhttprequest') {
+      return notes[12];
+    } else if (fileType == 'font') {
+      return notes[13];
+    } else if (fileType == 'sub_frame') {
+      return notes[1];
+    }
+    return notes[2];
   }
 
-  function playNote(note, uid, pitch, attackScaler, lengthScaler) {
+  function playNote(note, uid, totalNotes, attackScaler, lengthScaler) {
     note.tone.play(
       _(note)
       .merge(
-        { pitch: pitch,
+        { volume: 1.0 / totalNotes,
+          pitch: pitchFromFileType(note.fileType),
           env: {
             hold: lengthScaler(note.endTime - note.startTime)
           },
@@ -132,4 +152,6 @@ SoundSignature = function() {
     );
   }
 
+  // aaannd play the first note to kick things off.
+  tones['start'].play();
 }

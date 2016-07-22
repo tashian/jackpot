@@ -7,14 +7,14 @@ SoundManager = function(tabId) {
   }
 
   this.responseStarted = function(info) {
-    if (info.fromCache) { return; }
     if (info.statusCode != 200 && info.statusCode != 304 && info.statusCode != 204) {
       console.log('status ' + info.statusCode)
     }
     if (TrackerChecker.isTrackingRequest(info.pageUrl, info.url)) {
-      signature.push(info.requestId, 'tracker', info.timeStamp, info.contentLength);
+      signature.push(info.requestId, 'tracker', info.timeStamp, info.fileType);
     } else {
-      signature.push(info.requestId, 'request', info.timeStamp, info.contentLength);
+      console.log(info);
+      signature.push(info.requestId, 'request', info.timeStamp, info.fileType);
     }
   }
 
