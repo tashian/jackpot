@@ -1,6 +1,6 @@
 SoundSignature = function() {
   var tones = {
-    start: new Wad({source: chrome.extension.getURL('wav/cash-register.wav')}),
+    coinslot: new Wad({source: chrome.extension.getURL('wav/coinslot.wav')}),
     request: new Wad({
                 source : 'sine',
                 volume: 0.1,
@@ -44,7 +44,7 @@ SoundSignature = function() {
                'E3','G#3','C#4','F#4','B5',
                'E5'];
 
-  var lastPlay = Date.now();
+  var lastPlay = Date.now() - 1000;
 
   this.play = function(uid, toneType, timeStamp, length, tracker) {
     var pitch;
@@ -108,6 +108,14 @@ SoundSignature = function() {
     return notes[currentNote++ % notes.length];
   }
 
-  // aaannd play the first note to kick things off.
-  //tones['start'].play();
+  this.reset = function() {
+    lastPlay = Date.now() - 1000;
+    currentNote = 0;
+    currentTrackerNote = 0;
+
+    // aaannd play the first note to kick things off.
+    tones['coinslot'].play();
+  }
+
+
 }

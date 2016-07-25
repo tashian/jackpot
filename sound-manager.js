@@ -30,7 +30,7 @@ SoundManager = function(tabId) {
   }
 
   this.loading = function(info) {
-    signature = new SoundSignature();
+    signature.reset();
   }
 
 }
