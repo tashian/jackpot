@@ -10,30 +10,27 @@ SoundManager = function(tabId) {
     if (info.statusCode != 200 && info.statusCode != 304 && info.statusCode != 204) {
       console.log('status ' + info.statusCode)
     }
-    if (TrackerChecker.isTrackingRequest(info.pageUrl, info.url)) {
-      signature.push(info.requestId, 'tracker', info.timeStamp, info.fileType);
-    } else {
-      console.log(info);
-      signature.push(info.requestId, 'request', info.timeStamp, info.fileType);
+    var tracker = TrackerChecker.lookup(info.pageUrl, info.url)
+    if (typeof tracker != 'undefined') {
+      signature.play(info.requestId, 'tracker', info.timeStamp, info.contentLength, tracker);
     }
   }
 
   this.requestCompleted = function(info) {
-    signature.finish(info.requestId, info.timeStamp);
+  }
+
+  this.complete = function(info) {
   }
 
   this.error = function(info) {
     if (info.error == 'net::ERR_BLOCKED_BY_CLIENT' ||
         info.error == 'net::ERR_ABORTED') { return; }
     console.log('error ' + info.error);
-    sound.push(info.requestId, 'error', info.timeStamp, 0.2);
+    sound.play(info.requestId, 'error', info.timeStamp, 100);
   }
 
   this.loading = function(info) {
     signature = new SoundSignature();
   }
 
-  this.complete = function(info) {
-    signature.play();
-  }
 }

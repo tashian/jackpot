@@ -22,7 +22,7 @@ TrackerChecker = new function() {
     return urlParser.hostname;
   }
 
-  this.lookupTracker = function(hostname) {
+  this.findTrackerByHostname = function(hostname) {
     var tracker = this.trackers[hostname];
     // This is a naive approach for turning www.google.com into google.com.
     // It works for ads.doubleclick.co.uk but not for ads1.ads.doubleclick.com.
@@ -34,17 +34,17 @@ TrackerChecker = new function() {
     return tracker;
   }
 
-  this.isTrackingRequest = function(pageUrl, requestUrl) {
+  this.lookup = function(pageUrl, requestUrl) {
     var requestHostname = this.hostnameFromUrl(requestUrl);
-    var tracker = this.lookupTracker(requestHostname);
-    if (!tracker) { return false; }
+    var tracker = this.findTrackerByHostname(requestHostname);
+    if (!tracker) { return undefined; }
 
     var pageHostname = this.hostnameFromUrl(pageUrl);
     var trackerHostname = this.hostnameFromUrl(tracker.baseUrl);
     if (trackerHostname == pageHostname) {
-      return false;
+      return undefined;
     } else {
-      return true;
+      return tracker;
     }
   }
 }

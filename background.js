@@ -35,27 +35,37 @@
   //
   // Event listeners
   //
-  chrome.webRequest.onResponseStarted.addListener(
-    function(info) {
+  function objectifyResponseHeaders(arrayedHeaders) {
+    return _.reduce(arrayedHeaders, function(result, header) {
+      result[header.name.toLowerCase()] = header.value;
+      return result;
+    }, {});
+  }
+
+  function requestListener(cb) {
+    return function(info) {
       if (!TabController.tabIsAllowedToPlay(info.tabId)) { return; }
+      tabController = TabController.get(info.tabId);
+      cb(info, tabController);
+    }
+  }
 
-      function objectifyResponseHeaders(arrayedHeaders) {
-        return _.reduce(arrayedHeaders, function(result, header) {
-          result[header.name.toLowerCase()] = header.value;
-          return result;
-        }, {});
-      }
-
+  chrome.webRequest.onResponseStarted.addListener(
+    requestListener(function(info, tabController) {
       var headers = objectifyResponseHeaders(info.responseHeaders);
 
       chrome.tabs.get(info.tabId, function(tab) {
+        if (chrome.runtime.lastError) {
+          console.log('Error: ' + chrome.runtime.lastError.message);
+          return;
+        }
         if (typeof tab == 'undefined') {
           // This usually means something is being typed in the browser bar
-          TabController.get(info.tabId).dispatch('loading');
+          tabController.dispatch('loading');
           return;
         }
 
-        TabController.get(info.tabId).dispatch('responseStarted', {
+        tabController.dispatch('responseStarted', {
           requestId: info.requestId,
           timeStamp: info.timeStamp,
           fileType: info.type,
@@ -68,28 +78,25 @@
           url: info.url
         });
       });
-    },
+    }),
     allUrlsFilter,
     ["responseHeaders"]
   );
 
   chrome.webRequest.onCompleted.addListener(
-    function(info) {
-      if (!TabController.tabIsAllowedToPlay(info.tabId)) { return; }
-      TabController.get(info.tabId).dispatch('requestCompleted', {
+    requestListener(function(info, tabController) {
+      tabController.dispatch('requestCompleted', {
         requestId: info.requestId,
         timeStamp: info.timeStamp,
         url: info.url
       });
-    },
+    }),
     allUrlsFilter
   );
 
   chrome.webRequest.onErrorOccurred.addListener(
-    function(info) {
-      if (!TabController.tabIsAllowedToPlay(info.tabId)) { return; }
-
-      TabController.get(info.tabId).dispatch('error', {
+    requestListener(function(info, tabController) {
+      tabController.dispatch('error', {
         requestId: info.requestId,
         timeStamp: info.timeStamp,
         error: info.error,
@@ -99,7 +106,7 @@
         fileType: info.fileType,
         url: info.url
       })
-    },
+    }),
     allUrlsFilter
   );
 
@@ -126,7 +133,9 @@
     }
 
     this.tabIsAllowedToPlay = function(tabId) {
-      if (tabId == chrome.tabs.TAB_ID_NONE) { return false; }
+      if (tabId == chrome.tabs.TAB_ID_NONE || typeof tabId == 'undefined') {
+        return false;
+      }
       return true;
     }
 
