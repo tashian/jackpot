@@ -39,11 +39,11 @@ SoundSignature = function() {
   };
 
   var typewriterKeys = [
-    new Wad({source: chrome.extension.getURL('wav/keys1.wav')}),
-    new Wad({source: chrome.extension.getURL('wav/keys2.wav')}),
-    new Wad({source: chrome.extension.getURL('wav/keys3.wav')}),
-    new Wad({source: chrome.extension.getURL('wav/keys4.wav')}),
-    new Wad({source: chrome.extension.getURL('wav/keys5.wav')})
+    new Wad({source: chrome.extension.getURL('wav/jackpot1.wav')}),
+    new Wad({source: chrome.extension.getURL('wav/jackpot2.wav')}),
+    new Wad({source: chrome.extension.getURL('wav/jackpot3.wav')}),
+    new Wad({source: chrome.extension.getURL('wav/jackpot4.wav')}),
+    new Wad({source: chrome.extension.getURL('wav/jackpot5.wav')})
   ]
 
   var returnKey = new Wad(
@@ -64,7 +64,7 @@ SoundSignature = function() {
     //   toneType = 'ad';
     // }
     if (!(toneType in tones)) { reject('Tone ' + toneType + ' not found.'); }
-    if (Date.now() - lastPlay > 200) {
+    if (Date.now() - lastPlay > 100) {
       getNextTone(toneType).play({
         length: length,
         pitch: pitch,
@@ -103,7 +103,7 @@ SoundSignature = function() {
     if (toneType == 'tracker') {
       if ((++currentTrackerNote % 20) == 0) {
         console.log('[tone][' + currentTrackerNote + '] return');
-        return returnKey;
+        return tones['powerup'];
       } else {
         console.log('[tone][' + currentNote + '] ' + toneType);
         return typewriterKeys[Math.floor(Math.random()*typewriterKeys.length)];
