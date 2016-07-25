@@ -1,16 +1,6 @@
 SoundSignature = function() {
   var tones = {
-    start: new Wad({
-                source : 'sine',
-                volume: 0.1,
-                env : {
-                    attack : .02,
-                    decay : .1,
-                    hold: .1,
-                    sustain : .1,
-                    release : .1
-                }
-             }),
+    start: new Wad({source: chrome.extension.getURL('wav/cash-register.wav')}),
     request: new Wad({
                 source : 'sine',
                 volume: 0.1,
@@ -101,7 +91,7 @@ SoundSignature = function() {
   var currentTrackerNote = 0;
   function getNextTone(toneType) {
     if (toneType == 'tracker') {
-      if ((++currentTrackerNote % 20) == 0) {
+      if ((++currentTrackerNote % 15) == 0) {
         console.log('[tone][' + currentTrackerNote + '] return');
         return tones['powerup'];
       } else {
@@ -119,5 +109,5 @@ SoundSignature = function() {
   }
 
   // aaannd play the first note to kick things off.
-  // tones['start'].play();
+  //tones['start'].play();
 }
