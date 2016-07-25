@@ -25,6 +25,7 @@ SoundSignature = function() {
               release : .1
             }
           }),
+    complete: new Wad({source: chrome.extension.getURL('wav/cash-register.wav')}),
     powerup: new Wad({source: chrome.extension.getURL('wav/powerup.wav')})
   };
 
@@ -48,8 +49,7 @@ SoundSignature = function() {
 
   this.play = function(uid, toneType, timeStamp, length, tracker) {
     var pitch;
-    console.log(tracker);
-    if (tracker.category == 'Content') { return; }
+    if (tracker && tracker.category == 'Content') { return; }
     // if (tracker.category == 'Advertising') {
     //   toneType = 'ad';
     // }

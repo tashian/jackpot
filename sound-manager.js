@@ -20,6 +20,7 @@ SoundManager = function(tabId) {
   }
 
   this.complete = function(info) {
+    signature.play(info.requestId, 'complete', info.timeStamp);
   }
 
   this.error = function(info) {
