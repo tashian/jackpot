@@ -69,6 +69,16 @@ SoundSignature = function() {
     }
   }
 
+  var lastCompleted = Date.now() - 2000;
+  this.complete = function() {
+    if (Date.now() - lastCompleted >= 2000) {
+      getNextTone('complete').play({
+        volume: 0.5
+      });
+      lastCompleted = Date.now();
+    }
+  }
+
   // function pitchFromFileType(fileType) {
   //   if (fileType == 'image') {
   //     return notes[10];
