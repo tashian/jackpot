@@ -1,0 +1,68 @@
+body {
+    min-width: 350px;
+    background: #333;
+}
+
+div.container {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 20px;
+}
+
+.btn-borders {
+  position: relative;
+  border: 5px solid #f00;
+}
+
+.btn {
+  background: #4ad934;
+  background-image: -webkit-linear-gradient(top, #4ad934, #b8782b);
+  background-image: -moz-linear-gradient(top, #4ad934, #b8782b);
+  background-image: -ms-linear-gradient(top, #4ad934, #b8782b);
+  background-image: -o-linear-gradient(top, #4ad934, #b8782b);
+  background-image: linear-gradient(to bottom, #4ad934, #b8782b);
+  border-radius: 6px;
+  outline: none;
+  border: 2px solid yellow;
+  box-shadow: 0 0 0 6px red, 0 0 0 9px #000;
+  color: #fff;
+  font-size: 20px;
+  background: #000;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+}
+
+.casino {
+  font-family: Copperplate, "Copperplate Gothic Light", fantasy;
+  font-size: 50px;
+  font-weight: bold;
+  background: -webkit-linear-gradient(#eee, #666);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: white;
+}
+
+.btn:hover {
+  background: #2b2b2b;
+}
+
+h1 {
+  text-shadow: 1px 1px #333,
+               2px 2px #333,
+               -1px -1px #333,
+               -2px -2px #333;
+}
+
+a { color: #fff; }
+
+div.credits {
+  padding: 10px;
+  margin: 10px;
+  color: #fff;
+}
+
+div.credits span {
+  color: gold;
+}

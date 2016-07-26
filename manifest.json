@@ -1,11 +1,13 @@
 {
-  "name": "Listen to the web",
-  "version": "0.0.1",
+  "name": "Jackpot",
+  "version": "0.0.2",
   "minimum_chrome_version": "50.0",
   "browser_action": {
-    "default_icon": "toast.png",
+    "default_icon": "icon-48.png",
     "default_popup": "popup.html"
   },
+  "icons": { "48": "icon-48.png",
+          "128": "icon-128.png" },
   "background": {
     "scripts": [
       "vendor/js/lodash.min.js",
@@ -24,7 +26,6 @@
   "permissions": [
     "tabs",
     "webRequest",
-    "alarms",
     "http://*/*",
     "https://*/*"
   ]

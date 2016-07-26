@@ -2,14 +2,16 @@
 // https://developer.chrome.com/extensions/devtools
 
 var port = chrome.runtime.connect({name: "sonic-devtools"});
+var muted = false;
 
-// document.querySelector("#mute").addEventListener('click', muteUnmute);
-// document.querySelector("#reset").addEventListener('click', resetAll);
-//
-// function muteUnmute() {
-//   port.postMessage({type: 'mute'});
-// }
-//
-// function resetAll() {
-//   port.postMessage({type: 'reset'});
-// }
+document.querySelector("#mute").addEventListener('click', muteUnmute);
+
+function muteUnmute() {
+  port.postMessage({type: 'mute'});
+  muted = !muted;
+  if (muted) {
+    document.getElementById("mute-s").innerHTML = "unmute";
+  } else {
+    document.getElementById("mute-s").innerHTML = "mute";
+  }
+}
