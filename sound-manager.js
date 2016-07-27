@@ -1,4 +1,4 @@
-SoundManager = function(tabId) {
+var SoundManager = function(tabId) {
   var signature = new SoundSignature();
 
   this.dispatch = function(eventName, info) {
@@ -11,23 +11,17 @@ SoundManager = function(tabId) {
       console.log('status ' + info.statusCode)
     }
     var tracker = TrackerChecker.lookup(info.pageUrl, info.url)
-    if (typeof tracker != 'undefined') {
-      signature.play(info.requestId, 'tracker', info.timeStamp, info.contentLength, tracker);
+    if (trackerIsPlayable(tracker)) {
+      signature.play();
     }
   }
 
-  this.requestCompleted = function(info) {
+  function trackerIsPlayable(tracker) {
+    return (typeof tracker != 'undefined' && tracker.category != 'Content');
   }
 
   this.complete = function(info) {
     signature.complete();
-  }
-
-  this.error = function(info) {
-    if (info.error == 'net::ERR_BLOCKED_BY_CLIENT' ||
-        info.error == 'net::ERR_ABORTED') { return; }
-    console.log('error ' + info.error);
-    sound.play(info.requestId, 'error', info.timeStamp, 100);
   }
 
   this.loading = function(info) {

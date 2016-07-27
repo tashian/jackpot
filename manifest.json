@@ -14,6 +14,7 @@
       "vendor/js/wad.min.js",
       "vendor/js/jquery-3.0.0.min.js",
       "tracker-checker.js",
+      "mute-button-listener.js",
       "sound-signature.js",
       "sound-manager.js",
       "background.js"
@@ -26,6 +27,7 @@
   "permissions": [
     "tabs",
     "webRequest",
+    "storage",
     "http://*/*",
     "https://*/*"
   ]

@@ -12,27 +12,6 @@
   var allUrlsFilter = { urls: ["<all_urls>"] };
 
   //
-  // Connection to the extension's popup menu
-  //
-  chrome.runtime.onConnect.addListener(function(popupConnection) {
-    var popupCommandListener = function(msg) {
-      console.log(msg);
-      if (msg.type == 'mute') {
-        // ?
-      } else {
-        // ??
-      }
-    };
-
-    popupConnection.onMessage.addListener(popupCommandListener);
-
-    popupConnection.onDisconnect.addListener(function() {
-         popupConnection.onMessage.removeListener(popupCommandListener);
-    });
-
-  });
-
-  //
   // Event listeners
   //
   function objectifyResponseHeaders(arrayedHeaders) {
@@ -83,34 +62,8 @@
     ["responseHeaders"]
   );
 
-  chrome.webRequest.onCompleted.addListener(
-    requestListener(function(info, tabController) {
-      tabController.dispatch('requestCompleted', {
-        requestId: info.requestId,
-        timeStamp: info.timeStamp,
-        url: info.url
-      });
-    }),
-    allUrlsFilter
-  );
-
-  chrome.webRequest.onErrorOccurred.addListener(
-    requestListener(function(info, tabController) {
-      tabController.dispatch('error', {
-        requestId: info.requestId,
-        timeStamp: info.timeStamp,
-        error: info.error,
-        statusCode: info.statusCode,
-        fromCache: info.fromCache,
-        // isSsl: info.scheme,
-        fileType: info.fileType,
-        url: info.url
-      })
-    }),
-    allUrlsFilter
-  );
-
   chrome.tabs.onUpdated.addListener(function(tabId, info) {
+    if (MuteButtonListener.isMuted()) { return; }
     if (info.status == 'loading' || info.status == 'complete') {
       TabController.get(tabId).dispatch(info.status, {
         url: info.url
@@ -121,8 +74,7 @@
   //
   // Tab Management
   //
-
-  TabController = new function() {
+  var TabController = new function() {
     var soundManagers = {};
 
     this.get = function(tabId) {
@@ -133,6 +85,7 @@
     }
 
     this.tabIsAllowedToPlay = function(tabId) {
+      if (MuteButtonListener.isMuted()) { return false; }
       if (tabId == chrome.tabs.TAB_ID_NONE || typeof tabId == 'undefined') {
         return false;
       }
@@ -160,5 +113,5 @@
     chrome.tabs.onCreated.addListener(tabWasCreated);
     chrome.tabs.onRemoved.addListener(tabWasRemoved);
     chrome.tabs.onReplaced.addListener(tabWasReplaced);
-  };
+  }
 })();
