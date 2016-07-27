@@ -1,4 +1,4 @@
-TrackerChecker = new function() {
+var TrackerChecker = new function() {
   var allTrackers = {};
   $.getJSON(chrome.extension.getURL('/vendor/data/services.json'), function(trackers) {
     _.map(trackers.categories, function(ownerList, category) {

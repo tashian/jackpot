@@ -17,6 +17,7 @@
       "mute-button-listener.js",
       "sound-signature.js",
       "sound-manager.js",
+      "tab-controller.js",
       "background.js"
     ]
   },

@@ -33,6 +33,7 @@ SoundSignature = function() {
 
   var currentTrackerNote = 0;
   function getNextTrackerTone() {
+    console.log('[note] ' + currentTrackerNote);
     if ((++currentTrackerNote % 15) == 0) {
       return tones['powerup'];
     } else {
@@ -40,13 +41,17 @@ SoundSignature = function() {
     }
   }
 
+  var lastReset = Date.now() - 2000;
   this.reset = function() {
     lastPlay = Date.now() - 1000;
     currentNote = 0;
     currentTrackerNote = 0;
 
     // aaannd play the first note to kick things off.
-    tones['coinslot'].play();
+    if (Date.now() - lastReset >= 2000) {
+      tones['coinslot'].play();
+      lastReset = Date.now();
+    }
   }
 
 
