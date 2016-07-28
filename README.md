@@ -17,5 +17,10 @@ By [Carl Tashian](http://tashian.com/carl/)
 
 I would love to hear what you think!
 
-Get in touch with Carl. I'm [@tashian](https://twitter.com/tashian) on Twitter, and you can write me at [carl-listen@tashian.com](mailto:carl-listen@tashian.com).
+Get in touch with Carl. I'm [@tashian](https://twitter.com/tashian) on Twitter, and you can write me at [jackpotextension@gmail.com](mailto:jackpotextension@gmail.com).
 
+## License
+
+The code is licensed under GPLv3, including the list of trackers and advertisers, which is from [the Disconnect project](https://github.com/disconnectme/disconnect).
+
+The Jackpot promotional banner is from Shutterstock and is covered by their [Standard Image License](http://www.shutterstock.com/license)
