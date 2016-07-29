@@ -12,7 +12,6 @@ By [Carl Tashian](http://tashian.com/carl/)
 4. Click "Load Unpacked Extension..." and choose this folder.
 5. Browse around!
 
-
 ## Feedback? Want to contribute?
 
 I would love to hear what you think!
