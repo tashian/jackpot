@@ -6,6 +6,12 @@ By [Carl Tashian](http://tashian.com/carl/)
 
 ## Installation
 
+### From Chrome Web Store:
+
+1. [Install it here](https://chrome.google.com/webstore/detail/jackpot/appdalcpeinnebclfhnnpjkkcnadghgb?hl=en-US&gl=US)
+
+### From source:
+
 1. Clone or download this repository
 2. Go to chrome://extensions/
 3. Turn on Developer Mode
